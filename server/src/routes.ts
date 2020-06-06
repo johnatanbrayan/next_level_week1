@@ -1,6 +1,9 @@
 import express from 'express';
-import knex from './database/connection'
+import PointsController from './controllers/pointsController';
+import ItensController from './controllers/itensController';
 
+const pointsController = new PointsController();
+const itensController = new ItensController();
 const routes = express.Router();
 
 // Test endpoit global
@@ -11,56 +14,14 @@ routes.get('/', async (req, res) => {
 });
 
 // Lists todos os itens
-routes.get('/itens', async (req, res) => {
-    const itens = await knex('itens').select('*');
+routes.get('/itens', itensController.index);
 
-    const serializableItens = itens.map(item => {
-        return {
-            id: item.id,
-            title: item.title,
-            image_url: `http://localhost:3333/uploads/${item.image}`,
-        };
-    });
-    res.json(serializableItens);
-});
+// Cria e Populariza os points
+routes.post('/points', pointsController.create);
 
-routes.post('/points', async (req,res) => {
-    const {   
-        name,
-        email,
-        whatsapp,
-        latitude,
-        longitude,
-        city,
-        uf,
-        itens
-    } = req.body;
-
-    const trx = await knex.transaction();
-
-    const insertedIds = await trx('points').insert({
-        image: 'image-fake', 
-        name,
-        email,
-        whatsapp,
-        latitude,
-        longitude,
-        city,
-        uf
-    });
-
-    const point_id= insertedIds[0];
-
-    const point_itens = itens.map((item_id: number) => {
-        return {
-            item_id,
-            point_id
-        };
-    });
-
-    await trx('point_itens').insert(point_itens); 
-
-    return res.json({success: true});
-});
+/* ------Anotacao(Vale lembrar):
+    Boas praticas de nomeacao dos metodos no padrao api restfull
+    index(lista), show(mostra um obj), create(cria), update(atualiza), delete(deleta) 
+*/
 
 export default routes ;
