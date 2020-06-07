@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import knex from '../database/connection';
-
 class PointsController {
     
     async show(req: Request, res: Response) {
@@ -17,12 +16,6 @@ class PointsController {
         res.json({point, itens});
     };
 
-    async index(req: Request, res: Response) {
-        const points = await knex('points').select('*');
-
-        res.json(points);
-    }
-
     async create(req: Request, res: Response) {
         const {   
             name,
@@ -38,7 +31,7 @@ class PointsController {
         const trx = await knex.transaction();
 
         const insertedIds = await trx('points').insert({
-            image: 'image-fake', 
+            image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60', 
             name,
             email,
             whatsapp,
@@ -58,8 +51,29 @@ class PointsController {
         });
 
         await trx('point_itens').insert(point_itens); 
+        
+        trx.commit();
 
         return res.json({success: true});
+    }
+
+    async index(req: Request, res: Response) {
+        const { city, uf, itens } = req.query;
+
+        console.log(city, uf, itens);
+
+        const parsedItens = String(itens).split(',').map(item => Number(item.trim()));
+
+        const points = await knex('points')
+            .join('point_itens', 'points.id', '=', 'point_itens.point_id')
+            .whereIn('point_itens.item_id', parsedItens )
+            .where('points.city', String(city))
+            .where('points.uf', String(uf))
+            .distinct()
+            .select('points.*')
+        ;
+
+        res.json(points);
     }
 }
 

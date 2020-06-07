@@ -1,7 +1,6 @@
 import express from 'express';
 import PointsController from './controllers/pointsController';
 import ItensController from './controllers/itensController';
-import knex from './database/connection';
 
 const pointsController = new PointsController();
 const itensController = new ItensController();
