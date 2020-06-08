@@ -1,20 +1,13 @@
-import React , { useState } from 'react';
-import Header from './Header';
+import React from 'react';
 import './App.css';
+import Home from './pages/home/index';
+import CreatePoint from './pages/createPoint/index';
 
 function App() {
 
-  const [counter, setCounter] = useState(0);
-
-  function handlerButtonCounter() {
-    return setCounter(counter + 1);
-  }
-
   return (
       <div>
-        <Header title="Hello Word!!"></Header>
-        <h1>Soma dos valores: {counter}</h1>
-        <button type="button" onClick={handlerButtonCounter}>Aumentar</button>
+        <Home></Home>
       </div>
   );
 }
